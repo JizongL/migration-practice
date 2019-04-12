@@ -145,19 +145,42 @@ describe('Articles Endpoints',function(){
    expect(res.body.content).to.eql(`Bad image <img src="https://url.to.file.which/does-not.exist">. But not <strong>all</strong> bad.`)
     })
 
-  })
-  // it('check if XSS attack content is removed',()=>{
-  //   return supertest(app)
-  //   .get(`/articles/${maliciousArticle.id}`)
-  //   .expect(200)
-  //   .expect(res=>{
-  //     expect(res.body.title).to.eql('Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;')
-  //  expect(res.body.content).to.eql(`Bad image <img src="https://url.to.file.which/does-not.exist">. But not <strong>all</strong> bad.`)
-  //   })
-  // })
-
-  
+  })  
 })
+
+describe.only(`DELETE /articles/:article_id`, () => {
+     context('Given there are articles in the database', () => {
+       const testArticles = makeArticlesArray()
+  
+       beforeEach('insert articles', () => {
+         return db
+           .into('blogful_articles')
+           .insert(testArticles)
+       })
+  
+       it('responds with 204 and removes the article', () => {
+         const idToRemove = 2
+         const expectedArticles = testArticles.filter(article => article.id !== idToRemove)
+         return supertest(app)
+           .delete(`/articles/${idToRemove}`)
+           .expect(204)
+           .then(res =>
+             supertest(app)
+               .get(`/articles`)
+               .expect(expectedArticles)
+           )
+       })
+     })
+     context(`Given thare are no articles`,()=>{
+       it(`respond with 404`,()=>{
+         const articleId = 12345
+         return supertest(app)
+         .delete(`/articles/${articleId}`)
+         .expect(404,{error:{message:`Article doesn't exist`}})
+       })
+     })
+    
+    })
 
 
   describe('Get /articles/:article_id',()=>{
