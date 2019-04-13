@@ -18,7 +18,7 @@ app.use(helmet())
 app.get('/', (req, res) => {
   res.send('Hello, world!')
 })
-app.use('/articles',articlesRouter)
+app.use('/api/articles',articlesRouter)
 app.use(function errorHandler(error, req, res, next) {
     let response
     if (NODE_ENV === 'production') {
